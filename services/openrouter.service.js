@@ -1,46 +1,73 @@
-import { OpenRouter } from "@openrouter/sdk";
-import "dotenv/config";
-import readline from "node:readline/promises";
+import openRouter from "../config/openrouter.js";
+// import readline from "node:readline/promises";
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+// });
 
-const history = [];
-
-export const openrouter_provider = async (context, prompt) => {
-  const client = new OpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY,
-  });
-
-  const result = await client.chat.send({
+export const generateAIResponse = async ({ model, messages }) => {
+  const completion = await openRouter.chat.send({
     chatRequest: {
-      model: "nvidia/nemotron-3.5-lightning:free",
-      messages: [...context, prompt],
+      model: model,
+      messages: messages,
     },
   });
-
-  // console.log(result.choices);
-  return result.choices[0].message.content;
+  const result = completion.choices[0].message.content;
+  if (!result) {
+    throw new Error("Cannot get AI response.");
+  }
+  const promptTokens = completion.usage?.promptTokens || 0;
+  const completionTokens = completion.usage?.completionTokens || 0;
+  return {
+    result,
+    usage: {
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
+    },
+  };
 };
 
-while (true) {
-  const prompt_content = await rl.question("user> ");
-  if(prompt_content === "exit") rl.close();
-  const prompt = {
-    role: "user",
-    content: prompt_content,
-  };
-  history.push(prompt)
+// const history = [];
+// let totalTokens = 0;
+// let promptTokens = 0;
+// let completionTokens = 0;
 
-  const assistant_resonse = await openrouter_provider(history, prompt);
-    history.push({
-    role: "assistant",
-    content: assistant_resonse,
-  });
-  console.log("assistant>",assistant_resonse);
-}
+// while (true) {
+//   try {
+//     const content = await rl.question(`user----> 
+  
+//   `);
 
+//     // const model = "~openai/gpt-latest";
+//     const model = "nvidia/nemotron-3-nano-30b-a3b:free";
+//     const userPrompt = {
+//       role: "user",
+//       content,
+//     };
 
+//     const aiResponse = await generateAIResponse({
+//       model,
+//       messages: [...history, userPrompt],
+//     });
+//     console.log(`assistant----->
+//     ${aiResponse.result}
+//     `);
+//     totalTokens += aiResponse.usage.totalTokens;
+//     promptTokens += aiResponse.usage.promptTokens;
+//     completionTokens += aiResponse.usage.completionTokens;
+//     history.push(userPrompt);
+//     history.push({ role: "assistant", content: aiResponse.result });
+//   } catch (err) {
+//     console.log(err);
+//     rl.close();
+//     break;
+//   }
+// }
 
+// console.log({
+//   promptTokens,
+//   completionTokens,
+//   totalTokens,
+// });

@@ -1,7 +1,16 @@
 import Message from "../models/message.model.js";
 import Chat from "../models/chat.model.js";
 import mongoose from "mongoose";
-import { success } from "zod";
+// import { success } from "zod";
+import { generateAIResponse } from "../services/openrouter.service.js";
+import { generatePrompt } from "../utils/generatePrompt.js";
+import { chatTokenUsage } from "../utils/tokenUsage.js";
+import {
+  updateUserTokenUsage,
+  isUsageLimitExceeded,
+  resetTokenUsageIfNeeded,
+} from "../utils/userUsage.js";
+import { updateSummaryIfNeeded } from "../services/summary.service.js";
 
 export const getMessage = async (req, res) => {
   try {
@@ -15,7 +24,7 @@ export const getMessage = async (req, res) => {
         .json({ message: "Chat not found.", success: false });
 
     const messages = await Message.find({ chatId }).sort({ createdAt: 1 });
-
+    // console.log(messages);
     res.json({
       message: "Messages fetched.",
       data: messages,
@@ -39,6 +48,14 @@ export const sendMessage = async (req, res) => {
         success: false,
       });
     }
+    await resetTokenUsageIfNeeded(req.user);
+
+    if (isUsageLimitExceeded(req.user)) {
+      return res.status(429).json({
+        message: "You are exceeded the limit.",
+        success: false,
+      });
+    }
 
     let chat;
     if (chatId) {
@@ -59,7 +76,8 @@ export const sendMessage = async (req, res) => {
         });
       }
     } else {
-      if (!model) {
+      const selectedModel = model || process.env.DEFAULT_AI_MODEL;
+      if (!selectedModel) {
         return res.status(400).json({
           message: "Model not provided.",
           success: false,
@@ -67,33 +85,50 @@ export const sendMessage = async (req, res) => {
       }
       chat = await Chat.create({
         userId: req.tokenData.id,
-        model,
+        model:selectedModel,
       });
     }
 
-    const Usermessage = await Message.create({
+    const recentMessageHistory = await Message.find({ chatId: chat._id })
+      .sort({ createdAt: 1 })
+      .skip(chat.summarizedTillMessageNumber);
+    // console.log(recentMessageHistory);
+    const prepareMessage = generatePrompt({
+      summary: chat.summary,
+      history:recentMessageHistory,
+      currentMessage: content.trim(),
+    });
+    // console.log(prepareMessage);
+    const { result, usage } = await generateAIResponse({
+      model:chat.model,
+      messages:prepareMessage,
+    });
+    const userMessage = await Message.create({
       userId: req.tokenData.id,
       chatId: chat._id,
       role: "user",
       content: content,
+      tokens: usage?.promptTokens,
+      usage: {
+        promptTokens: usage?.promptTokens,
+        totalTokens: usage?.promptTokens,
+      },
     });
-
-    // content : AI ko bhejna.......
-
-    const dummyResponse = "Abhi implement baki hai .....";
-
     const assistantMessage = await Message.create({
       userId: req.tokenData.id,
       chatId: chat._id,
       role: "assistant",
-      content: dummyResponse,
+      content: result,
+      tokens:usage.completionTokens,
+      usage,
     });
     chat.messageCount += 2;
     if (chat.topic.toLowerCase() === "new chat") {
       chat.topic = content.trim().slice(0, 40);
     }
+    await chatTokenUsage(chat, usage);
 
-    await chat.save();
+    await updateUserTokenUsage(req.user, usage);
 
     res.json({
       message: "Responce generated.",
@@ -101,11 +136,17 @@ export const sendMessage = async (req, res) => {
         chatId: chat._id,
         messageId: assistantMessage._id,
         role: assistantMessage.role,
-        content: assistantMessage.content,
+        reply: assistantMessage.content,
+        usage,
+        userMessage,
+        assistantMessage
       },
     });
+    updateSummaryIfNeeded(chat._id).catch((err) =>
+      console.log("Summary update error:", err.message),
+    );
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     return res.status(500).json({
       message: "Internal server error.",
     });

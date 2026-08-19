@@ -180,7 +180,7 @@ export const refreshController = async (req, res) => {
   // });
 
   // res.cookie("refreshToken",newRefreshToken,cookieOptions);
-  res.header("Authorization",newaccessToken);
+  res.header("Authorization",`Bearer ${newaccessToken}`);
   res.json({ message:"Token refreshed.",success:true });
 }catch(err){
   console.log(err);

@@ -1,0 +1,50 @@
+import openRouter from "../config/openrouter.js";
+
+/**
+ * Streams an OpenRouter chat completion using the same SDK/configuration
+ * as the existing non-streaming service.
+ */
+export async function generateAIResponseStream({ model, messages, onToken, onUsage }) {
+  const stream = await openRouter.chat.send({
+    chatRequest: {
+      model,
+      messages,
+      stream: true,
+    },
+  });
+
+  let result = "";
+  let usage = {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0,
+  };
+
+  for await (const chunk of stream) {
+    const content = chunk.choices?.[0]?.delta?.content;
+
+    if (content) {
+      result += content;
+      await onToken(content);
+    }
+
+    if (chunk.usage) {
+      const promptTokens = chunk.usage.promptTokens || 0;
+      const completionTokens = chunk.usage.completionTokens || 0;
+      const totalTokens = chunk.usage.totalTokens || promptTokens + completionTokens;
+
+      usage = {
+        promptTokens,
+        completionTokens,
+        totalTokens,
+      };
+    }
+  }
+
+  if (!result) {
+    throw new Error("Cannot get AI response.");
+  }
+
+  await onUsage(usage);
+  return { result, usage };
+}

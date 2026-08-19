@@ -46,6 +46,7 @@ export const authMiddleware = ({
         })
       };
       req.tokenData = tokenData;
+      req.user = user
       next();
     } catch (err) {
       if (optionalAuth) {

@@ -7,11 +7,26 @@ import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
+import cors from "cors";
+
+
 
 const app = express();
+
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    exposedHeaders: ["Authorization"]
+}));
+
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+
+
+
 
 app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });

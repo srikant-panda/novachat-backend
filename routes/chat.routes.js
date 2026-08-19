@@ -14,9 +14,9 @@ import { getRecentChat,getChatById,deleteChatByID,createChat }  from "../control
 const chatRouter = Router();
 chatRouter.use(authMiddleware())
 
-chatRouter.get("/getRecentChat",authMiddleware(),getRecentChat );
-chatRouter.post("/createChat",authMiddleware(),createChat);
-chatRouter.get("/:chatId",authMiddleware(),getChatById);
-chatRouter.delete("/:chatId",authMiddleware(),deleteChatByID);
+chatRouter.get("/getRecentChat",getRecentChat );
+chatRouter.post("/createChat",createChat);
+chatRouter.get("/:chatId",getChatById);
+chatRouter.delete("/:chatId",deleteChatByID);
 
 export default chatRouter;
