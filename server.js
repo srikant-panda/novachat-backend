@@ -32,6 +32,12 @@ app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });
 });
 
+app.get("/health",(req,res)=>{
+  res.json({
+    message:"running",
+  })
+})
+
 app.use("/api/auth/", authRouter);
 app.use("/api/user/", userRouter);
 app.use("/api/chat/",chatRouter);
