@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
 
     tokenLimit: {
       type: Number,
-      default: 10000
+      default: 150000
     },
 
     resetAt: {
