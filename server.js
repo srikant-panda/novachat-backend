@@ -8,14 +8,14 @@ import userRouter from "./routes/user.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import cors from "cors";
-
+import "dotenv/config";
 
 
 const app = express();
 
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.VITE_FRONTEND_URL || "http://localhost:3000/",
     credentials: true,
     exposedHeaders: ["Authorization"]
 }));

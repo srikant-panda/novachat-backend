@@ -165,7 +165,7 @@ export const streamMessage = async (req, res) => {
       console.log("Summary update error:", err.message),
     );
   } catch (err) {
-    console.log("Streaming message error:", err);
+    console.log("Streaming message error:", err.message);
 
     if (res.headersSent) {
       sendEvent(res, "error", { message: err.message || "Internal server error." });
