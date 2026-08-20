@@ -118,7 +118,7 @@ export const streamMessage = async (req, res) => {
     });
 
     const { result, usage } = await generateAIResponseStream({
-      model: chat.model,
+      model: model?model:chat.model,
       messages: preparedMessages,
       onToken: async (text) => {
         if (!streamClosed) sendEvent(res, "token", { text });

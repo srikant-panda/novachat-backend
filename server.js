@@ -15,7 +15,7 @@ const app = express();
 
 
 app.use(cors({
-    origin: process.env.VITE_FRONTEND_URL || "http://localhost:3000/",
+    origin:process.env.VITE_FRONTEND_URL.slice(0.-1) || "http://localhost:5173",
     credentials: true,
     exposedHeaders: ["Authorization"]
 }));

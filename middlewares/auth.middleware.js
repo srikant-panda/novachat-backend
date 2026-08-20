@@ -31,8 +31,10 @@ export const authMiddleware = ({
             .json({ message: "Invalid authorization header." });
       }
       const tokenData = jwt.verify(token, config.JWT_SECRET);
+      // console.log(tokenData.JTI);
       if (type.toLowerCase() === "refresh") {
         const { revoked } = await Session.findOne({ JTI: tokenData.JTI });
+        console.log(revoked);
         if (revoked)
           return res
             .status(404)

@@ -100,7 +100,7 @@ export const sendMessage = async (req, res) => {
     });
     // console.log(prepareMessage);
     const { result, usage } = await generateAIResponse({
-      model:chat.model,
+      model:model?model:chat.model,
       messages:prepareMessage,
     });
     const userMessage = await Message.create({
