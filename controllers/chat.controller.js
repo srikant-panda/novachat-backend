@@ -7,7 +7,7 @@ export const getRecentChat = async (req, res) => {
       .select("topic model updatedAt")
       .sort({ updatedAt: -1 })
       .limit(20);
-    
+
     return res.json({
       message: "Chats fetched successfully.",
       chats: chatData,
@@ -52,8 +52,14 @@ export const createChat = async (req, res) => {
 export const deleteChatByID = async (req, res) => {
   try {
     const chatId = req.params?.chatId;
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return res.status(400).json({
+        message: "ChatId is not a valid id.",
+        success: false,
+      });
+    }
     const userId = req.tokenData.id;
-    const chat = await Chat.findOne({ _id:chatId,userId:userId });
+    const chat = await Chat.findOne({ _id: chatId, userId: userId });
     if (!chat) {
       return res.status(404).json({
         message: "Chat not found.",
@@ -89,8 +95,14 @@ export const deleteChatByID = async (req, res) => {
 export const getChatById = async (req, res) => {
   try {
     const chatId = req.params?.chatId;
-    console.log(chatId);
-    const chat = await Chat.findOne({ _id:chatId,userId:req.tokenData.id });
+    // console.log(chatId);
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return res.status(400).json({
+        message: "ChatId is not a valid id.",
+        success: false,
+      });
+    }
+    const chat = await Chat.findOne({ _id: chatId, userId: req.tokenData.id });
 
     if (!chat) {
       return res.status(404).json({

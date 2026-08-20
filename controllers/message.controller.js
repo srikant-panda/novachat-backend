@@ -15,6 +15,12 @@ import { updateSummaryIfNeeded } from "../services/summary.service.js";
 export const getMessage = async (req, res) => {
   try {
     const chatId = req.params?.chatId;
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+        return res.status(400).json({
+          message: "ChatId is not a valid id.",
+          success: false,
+        });
+      }
     const userId = req.tokenData?.id;
 
     const chat = await Chat.findOne({ _id: chatId, userId });
