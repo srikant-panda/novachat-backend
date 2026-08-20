@@ -21,8 +21,8 @@ const createToken = (id, email, exp) => {
 
 const cookieOptions = {
   httpOnly: true,
-  sameSite: "strict",
-  secure: config.Production ? true : false,
+  sameSite: config.PRODUCTION === "true" ? "none" : "lax",
+  secure: config.PRODUCTION === "true",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
