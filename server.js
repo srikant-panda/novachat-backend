@@ -38,7 +38,7 @@ app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });
 });
 
-app.get("/health", (req, res) => {
+app.get("/health", async (req, res) => {
   res.json({
     message: "running",
   });
