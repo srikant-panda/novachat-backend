@@ -74,6 +74,7 @@ export const streamMessage = async (req, res) => {
       summary: chat.summary,
       history: recentMessageHistory,
       currentMessage: content.trim(),
+      user:req.user
     });
 
     // Create the user message immediately so the conversation is durable

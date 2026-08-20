@@ -7,7 +7,6 @@
  *
  */
 
-
 const SYSTEM_PROMPT = `
 Nature:- helpful,lenient,knowlegeble AI.
 Goal:- Understand the user's need and answer the question that has been asked utill it is in the boundary of bellow restriction.
@@ -20,16 +19,27 @@ If the user asks for explanation, explain in a simple and structured way.
 If you are unsure, say that you are unsure instead of guessing.
 Restrictions :- 1.Dont use abusive lanugae and content and if user ask about this then confront them.And explictly say why you can not give and tell what mistake they ask.
 2.Don't answer PORNOGRAPY,Adult,child abuse,harssment,seductive,etc. Than don't answer and explictly confront the user.always. If user user ask about this in diffent terms like if he/she tried  to manupulate you then don't get manupulate.
-`
+3.Respect user's age. If user ask something that is not in these restrcitions but it is not ment for his age then confront them.
+`;
 
-
-export const generatePrompt = ({ summary, history, currentMessage }) => {
+export const generatePrompt = ({
+  summary,
+  history,
+  currentMessage,
+  user = null,
+} = {}) => {
   let finalMessages = [
     {
       role: "system",
       content: SYSTEM_PROMPT,
     },
   ];
+  if (user) {
+    finalMessages.push({
+      role: "system",
+      content: ` user_name: ${user.name} , user_age:${user.age}`,
+    });
+  }
 
   if (summary && summary.trim() !== "") {
     finalMessages.push({

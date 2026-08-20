@@ -1,3 +1,4 @@
+import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express from "express";
 import morgan from "morgan";
@@ -8,40 +9,45 @@ import userRouter from "./routes/user.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import cors from "cors";
-import "dotenv/config";
-
 
 const app = express();
+const LOCAL_TEST = process.env.LOCAL_TEST === "true" || false;
+let FRONTEND_URL = "http://localhost:5173";
+console.log(LOCAL_TEST);
+if (!LOCAL_TEST) {
+  if (!process.env.VITE_FRONTEND_URL)
+    throw new Error("Frontend URL is not  defined in env.");
 
+  FRONTEND_URL = (process.env.VITE_FRONTEND_URL).replace(/\/+$/, '');
 
-app.use(cors({
-    origin:process.env.VITE_FRONTEND_URL.slice(0.-1) || "http://localhost:5173",
+}
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
     credentials: true,
-    exposedHeaders: ["Authorization"]
-}));
-
+    exposedHeaders: ["Authorization"],
+  }),
+);
 
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
-
-
-
 app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });
 });
 
-app.get("/health",(req,res)=>{
+app.get("/health", (req, res) => {
   res.json({
-    message:"running",
-  })
-})
+    message: "running",
+  });
+});
 
 app.use("/api/auth/", authRouter);
 app.use("/api/user/", userRouter);
-app.use("/api/chat/",chatRouter);
-app.use("/api/message/",messageRouter);
+app.use("/api/chat/", chatRouter);
+app.use("/api/message/", messageRouter);
 
 app.use((err, req, res, next) => {
   // console.log(err);
@@ -57,11 +63,12 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(config.PORT, () =>
-      console.log(`server started on port ${config.PORT}`),
-    );
+    app.listen(config.PORT, () => {
+      console.log(`server started on port ${config.PORT}.`);
+      console.log(`Frontend URL is : ${FRONTEND_URL}`);
+    });
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 };
 

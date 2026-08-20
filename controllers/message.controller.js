@@ -97,6 +97,7 @@ export const sendMessage = async (req, res) => {
       summary: chat.summary,
       history:recentMessageHistory,
       currentMessage: content.trim(),
+      user:req.user
     });
     // console.log(prepareMessage);
     const { result, usage } = await generateAIResponse({

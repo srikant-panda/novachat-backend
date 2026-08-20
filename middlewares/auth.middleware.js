@@ -33,9 +33,9 @@ export const authMiddleware = ({
       const tokenData = jwt.verify(token, config.JWT_SECRET);
       // console.log(tokenData.JTI);
       if (type.toLowerCase() === "refresh") {
-        const { revoked } = await Session.findOne({ JTI: tokenData.JTI });
-        console.log(revoked);
-        if (revoked)
+        const session = await Session.findOne({ JTI: tokenData.JTI }) || {};
+        // console.log(revoked);
+        if (!session || session.revoked )
           return res
             .status(404)
             .json({ message: "Token not valid.", success: false });
