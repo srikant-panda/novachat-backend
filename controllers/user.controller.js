@@ -24,7 +24,7 @@ export const deleteUser = async (req, res) => {
     if(deleteMessages.deletedCount !== 0){
       const deleteChats = await Chat.deleteMany({ userID:req.tokenData.id });
       if(deleteChats.deletedCount !== 0){
-        const deleteChats = await User.findByIdAndDelete(req.tokenData.id);
+        const deleteUser = await User.findByIdAndDelete(req.tokenData.id);
 
         res.clearCookie("refreshToken",{
           httpOnly:true,

@@ -59,7 +59,6 @@ export const signupController = async (req, res) => {
       age,
       password: hashPassword,
     });
-    // console.log(user);
     if (userCreated) {
       const { token: accessToken, JTI: accessTokenJTI } = createToken(
         userCreated._id,

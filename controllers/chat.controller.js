@@ -1,5 +1,7 @@
 import Chat from "../models/chat.model.js";
 import Message from "../models/message.model.js";
+import mongoose  from "mongoose";
+
 
 export const getRecentChat = async (req, res) => {
   try {
