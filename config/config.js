@@ -21,5 +21,4 @@ export const config = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET:process.env.JWT_SECRET,
   OPENROUTER_API_KEY:process.env.OPENROUTER_API_KEY,
-  PRODUCTION:process.env.PRODUCTION?process.env.PRODUCTION:false
 };
