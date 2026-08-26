@@ -11,12 +11,6 @@ import messageRouter from "./routes/message.routes.js";
 import cors from "cors";
 
 const app = express();
-app.use("/",async (req, res, next) => {
-  return res.json({
-    message: "Chathgpt backend is running...",
-    status: "running",
-  });
-});
 const LOCAL_TEST = process.env.LOCAL_TEST === "true" || false;
 const devOriginPattern =
   /^http:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):5173$/;
