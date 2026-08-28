@@ -161,6 +161,7 @@ export const streamMessage = async (req, res) => {
       });
       res.end();
     }
+    // console.log(assistantMessage.content);
 
     updateSummaryIfNeeded(chat._id).catch((err) =>
       console.log("Summary update error:", err.message),

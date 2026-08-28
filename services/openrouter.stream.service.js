@@ -14,6 +14,19 @@ export async function generateAIResponseStream({
     chatRequest: {
       model,
       messages,
+      tools: [
+        {
+          type: "openrouter:web_search",
+          parameters: {
+            engine: "auto",
+            max_results: 5,
+            max_total_results: 20,
+            search_context_size: "auto",
+            allowed_domains: [],
+            excluded_domains: [],
+          },
+        },
+      ],
       stream: true,
     },
   });
@@ -24,11 +37,11 @@ export async function generateAIResponseStream({
     completionTokens: 0,
     totalTokens: 0,
   };
- let buffer = '';
+  let buffer = "";
   for await (const chunk of stream) {
     const content = chunk.choices?.[0]?.delta?.content;
     // if(!content) return
-    
+
     if (content) {
       result += content;
       // await onToken(content);
@@ -46,7 +59,7 @@ export async function generateAIResponseStream({
         buffer = "";
       }
 
-      // // Don't lose remaining text
+      // Don't lose remaining text
       // if (buffer) {
       //   onToken(buffer);
       // }

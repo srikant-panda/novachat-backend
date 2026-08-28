@@ -87,6 +87,13 @@ export const signupController = async (req, res) => {
 
 export const loginController = async (req, res) => {
   try {
+    const isAlrdyLogdin = req.tokenData || null;
+    if (isAlrdyLogdin) {
+      return res.json({
+        message: "User already logged in.",
+        success: true,
+      });
+    }
     // const { email, password } = req.body;
     const result = signinSchema.safeParse(req.body);
     if (!result.success) {
@@ -154,35 +161,35 @@ export const logoutCotroller = async (req, res) => {
 };
 
 export const refreshController = async (req, res) => {
-  try{
-  // const old_JTI = req.tokenData.JTI;
+  try {
+    // const old_JTI = req.tokenData.JTI;
 
-  // const isRevoked = await Session.findOneAndUpdate(
-  //   { JTI: old_JTI },
-  //   { revoked: true },
-  // );
-  const user = await User.findById(req.tokenData.id);
-  // const { token: newRefreshToken, JTI: newRefreshJTI } = createToken(
-  //   req.tokenData.id,
-  //   user.email,
-  //   "7d",
-  // );
-  const { token: newaccessToken } = createToken(
-    req.tokenData.id,
-    user.email,
-    "15m",
-  );
+    // const isRevoked = await Session.findOneAndUpdate(
+    //   { JTI: old_JTI },
+    //   { revoked: true },
+    // );
+    const user = await User.findById(req.tokenData.id);
+    // const { token: newRefreshToken, JTI: newRefreshJTI } = createToken(
+    //   req.tokenData.id,
+    //   user.email,
+    //   "7d",
+    // );
+    const { token: newaccessToken } = createToken(
+      req.tokenData.id,
+      user.email,
+      "15m",
+    );
 
-  // const session = await Session.create({
-  //   JTI: newRefreshJTI,
-  //   owner: req.tokenData.id,
-  // });
+    // const session = await Session.create({
+    //   JTI: newRefreshJTI,
+    //   owner: req.tokenData.id,
+    // });
 
-  // res.cookie("refreshToken",newRefreshToken,cookieOptions);
-  res.header("Authorization",`Bearer ${newaccessToken}`);
-  res.json({ message:"Token refreshed.",success:true });
-}catch(err){
-  console.log(err);
-  res.status(500).json({ message:"Internal server error." })
-}
+    // res.cookie("refreshToken",newRefreshToken,cookieOptions);
+    res.header("Authorization", `Bearer ${newaccessToken}`);
+    res.json({ message: "Token refreshed.", success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error." });
+  }
 };
