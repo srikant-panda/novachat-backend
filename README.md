@@ -195,6 +195,18 @@ Frontend: https://novachat.vercel.app
 Backend:  https://novachat-backend.onrender.com
 ```
 
+For this cross-origin setup, set these backend environment variables:
+
+```text
+PRODUCTION=true
+VITE_FRONTEND_URL=https://novachat.vercel.app
+```
+
+Set the frontend's `VITE_API_URL` to the HTTPS backend API URL, for example
+`https://novachat-backend.onrender.com/api`. The refresh cookie uses
+`SameSite=None; Secure`, so both deployed URLs must use HTTPS. The frontend
+origin must match exactly (including the scheme and without a trailing slash).
+
 Do not use a wildcard origin with credentialed requests.
 
 For a production custom-domain architecture, the public API can also be exposed through the same origin:

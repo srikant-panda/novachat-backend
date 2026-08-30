@@ -21,4 +21,8 @@ export const config = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET:process.env.JWT_SECRET,
   OPENROUTER_API_KEY:process.env.OPENROUTER_API_KEY,
+  // Treat either an explicit production flag or the hosting platform's
+  // standard NODE_ENV value as production. This is used by cookie settings.
+  PRODUCTION:
+    process.env.PRODUCTION === "true" || process.env.NODE_ENV === "production",
 };

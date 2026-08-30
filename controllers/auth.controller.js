@@ -21,8 +21,8 @@ const createToken = (id, email, exp) => {
 
 const cookieOptions = {
   httpOnly: true,
-  sameSite: config.PRODUCTION === "true" ? "none" : "lax",
-  secure: config.PRODUCTION === "true",
+  sameSite: config.PRODUCTION ? "none" : "lax",
+  secure: config.PRODUCTION,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -151,7 +151,9 @@ export const logoutCotroller = async (req, res) => {
     );
     console.log(isUpdated);
     if (isUpdated) {
-      res.clearCookie("refreshToken");
+      // Clearing a cookie must use the same attributes as the cookie that was
+      // set, otherwise browsers can retain the production cookie.
+      res.clearCookie("refreshToken", cookieOptions);
       res.json({ message: "User logged Out.", success: true });
     }
   } catch (err) {
