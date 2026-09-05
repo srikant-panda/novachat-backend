@@ -58,7 +58,8 @@ app.use("/api/chat/", chatRouter);
 app.use("/api/message/", messageRouter);
 
 app.use((err, req, res, next) => {
-  // console.log(err);
+  console.error(err);
+
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({
       success: false,
@@ -66,8 +67,20 @@ app.use((err, req, res, next) => {
     });
   }
 
-  next(err);
+  if (err.message?.includes("not allowed by CORS")) {
+    return res.status(403).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  return res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
 });
+
+
 const startServer = async () => {
   try {
     await connectDB();
@@ -80,6 +93,5 @@ const startServer = async () => {
   }
 };
 
-app.use((req, res, next, err) => {});
 
 startServer();

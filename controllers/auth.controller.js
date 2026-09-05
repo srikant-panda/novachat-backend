@@ -1,30 +1,10 @@
 import User from "../models/user.model.js";
 import Session from "../models/auth.model.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { config } from "../config/config.js";
-import crypto from "node:crypto";
 import { signupSchema, signinSchema } from "../validators/user.schema.js";
+import { createToken,cookieOptions } from "../utils/jwtAndCookie.utils.js"
 
-const createToken = (id, email, exp) => {
-  try {
-    const JTI = crypto.randomUUID();
-    // console.log(JTI);
-    const token = jwt.sign({ id, email, JTI }, config.JWT_SECRET, {
-      expiresIn: exp,
-    });
-    return { token, JTI };
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const cookieOptions = {
-  httpOnly: true,
-  sameSite: config.PRODUCTION ? "none" : "lax",
-  secure: config.PRODUCTION,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
 
 export const signupController = async (req, res) => {
   try {
