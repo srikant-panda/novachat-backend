@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import Session from "../../models/auth.model.js";
+import Session from "../models/auth.model.js";
 
 export const createToken = (id, email, exp) => {
   try {
