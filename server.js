@@ -2,6 +2,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express from "express";
 import morgan from "morgan";
+import session from "express-session"
 import { config } from "./config/config.js";
 import { connectDB } from "./config/database.js";
 import authRouter from "./routes/auth.routes.js";
@@ -38,9 +39,27 @@ app.use(
   }),
 );
 
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "change-this-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.PRODUCTION === "true",
+      sameSite: process.env.PRODUCTION === "true"?"none":"lax",
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
+  })
+);
+
+
 
 app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });

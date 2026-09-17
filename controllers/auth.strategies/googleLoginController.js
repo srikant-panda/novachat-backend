@@ -1,15 +1,23 @@
 import { google } from "googleapis";
 import crypto from "crypto";
+import User from "../../models/user.model.js";
 import { createUser } from "../../utils/userCreate.js";
-import { sendTokens } from "../../utils/jwtAndCookie.utils";
+import { sendTokens } from "../../utils/jwtAndCookie.utils.js";
 
 export const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.REDIRECT_URL,
+  process.env.GOOGLE_REDIRECT_URL,
 );
 
 export const googeleLoginHandler = async (req, res) => {
+  const isAlrdyLogdin = req.tokenData || null;
+  if (isAlrdyLogdin) {
+    return res.json({
+      message: "User already logged in.",
+      success: true,
+    });
+  }
   const q = req.query;
   if (!q.redirect_url)
     return res
@@ -40,15 +48,27 @@ export const googleCallbackHandler = async (req, res) => {
     return res.json({ message: "State mismatch. Possible CSRF attack" });
   }
   const { tokens } = await oauth2Client.getToken(q.code);
-  const id_data = await oauth2Client.verifyIdToken(tokens.id_token);
+  console.log(tokens);
+  const id_data = await oauth2Client.verifyIdToken({ idToken:tokens.id_token , audience:process.env.GOOGLE_CLIENT_ID });
+  console.log(id_data);
 
-  const user = await User.findOne({ email: id_data.payload.email });
+  let user = await User.findOne({ email: id_data.payload.email });
   if (!user) {
-    res.redirect(req.session.redirect_url);
+    user = await createUser({
+      name: id_data.payload.name,
+      email: id_data.payload.email,
+      method: "google",
+      clientID: process.env.GOOGLE_CLIENT_ID,
+    });
   }
+  console.log(user);
   const result = await sendTokens(res, user);
   if (!result) {
     return res.status(403).json({ message: "login failed.", sucess: false });
   }
-  res.json({ message: "user log in successful.", success: true });
+  const baseRedirect = req.session.redirect_url || "http://localhost:5173/auth/callback";
+  const redirectUrl = result.accessToken
+    ? `${baseRedirect}${baseRedirect.includes("?") ? "&" : "?"}token=${result.accessToken}`
+    : baseRedirect;
+  res.redirect(redirectUrl);
 };

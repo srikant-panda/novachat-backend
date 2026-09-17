@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Session from "../models/auth.model.js";
+import { config } from "../config/config.js"
 
 export const createToken = (id, email, exp) => {
   try {
@@ -22,12 +23,12 @@ export const cookieOptions = {
 };
 
 export const sendTokens = async (res, user) => {
-  const { tokens: accessToken, JTI: accessTokenJti } = createToken(
+  const { token: accessToken, JTI: accessTokenJti } = createToken(
     user._id,
     user.email,
     "15m",
   );
-  const { tokens: refreshToken, JTI: refreshTokenJTI } = createToken(
+  const { token: refreshToken, JTI: refreshTokenJTI } = createToken(
     user._id,
     user.email,
     "7d",
@@ -40,7 +41,7 @@ export const sendTokens = async (res, user) => {
   if (isStored) {
     res.set("Authorization", accessToken);
     res.cookie("refreshToken", refreshToken, cookieOptions);
-    return true;
+    return { success: true, accessToken, refreshToken };
   }
   return false;
 };

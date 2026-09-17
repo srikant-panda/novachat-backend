@@ -21,7 +21,8 @@ export const signupSchema = z
       .regex(
         /[~!@#$%^&*().,<>_+]/,
         "Password should have atleaast one special character.",
-      ),
+      )
+      .optional(),
   })
   .strict();
 
@@ -40,6 +41,7 @@ export const signinSchema = z
       .regex(
         /[~!@#$%^&*().,<>_+]/,
         "Password should have atleaast one special character.",
-      ),
+      )
+      .optional(),
   })
   .strict();

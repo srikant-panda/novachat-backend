@@ -47,6 +47,11 @@ export const authMiddleware = ({
           success:false
         })
       };
+      if (type.toLowerCase() !== "refresh" && !req.originalUrl?.includes("completeAuth")) {
+        if (!user.age) {
+          return res.status(422).json({ message: "Age is required. Please set your age before continuing." });
+        }
+      }
       req.tokenData = tokenData;
       req.user = user
       next();

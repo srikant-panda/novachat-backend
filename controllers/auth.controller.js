@@ -3,8 +3,7 @@ import Session from "../models/auth.model.js";
 import bcrypt from "bcrypt";
 import { config } from "../config/config.js";
 import { signupSchema, signinSchema } from "../validators/user.schema.js";
-import { createToken,cookieOptions } from "../utils/jwtAndCookie.utils.js"
-
+import { createToken, cookieOptions } from "../utils/jwtAndCookie.utils.js";
 
 export const signupController = async (req, res) => {
   try {
@@ -150,7 +149,7 @@ export const refreshController = async (req, res) => {
     //   { JTI: old_JTI },
     //   { revoked: true },
     // );
-    const user = await User.findById(req.tokenData.id);
+    // const user = await User.findById(req.tokenData.id);
     // const { token: newRefreshToken, JTI: newRefreshJTI } = createToken(
     //   req.tokenData.id,
     //   user.email,
@@ -158,7 +157,7 @@ export const refreshController = async (req, res) => {
     // );
     const { token: newaccessToken } = createToken(
       req.tokenData.id,
-      user.email,
+      req.user.email,
       "15m",
     );
 
@@ -170,6 +169,27 @@ export const refreshController = async (req, res) => {
     // res.cookie("refreshToken",newRefreshToken,cookieOptions);
     res.header("Authorization", `Bearer ${newaccessToken}`);
     res.json({ message: "Token refreshed.", success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const completeAuth = async (req, res) => {
+  try {
+    const { age } = req.body || {};
+    if (!age) {
+      return res.status(400).json({
+        message: "Age is not defined.So provide age.",
+        success: false,
+      });
+    }
+    req.user.age = age;
+    await req.user.save();
+    return res.json({
+      message: "Age updated.",
+      success: true,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error." });
