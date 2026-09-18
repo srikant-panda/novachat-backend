@@ -20,7 +20,7 @@ export const getCookieOptions = (req) => {
   const isHttps = req
     ? req.secure || req.headers?.["x-forwarded-proto"] === "https"
     : false;
-  const isSecure = config.PRODUCTION || isHttps;
+  const isSecure = config.PRODUCTION  || isHttps;
 
   return {
     httpOnly: true,
