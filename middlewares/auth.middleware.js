@@ -11,10 +11,18 @@ export const authMiddleware = ({
     try {
       //   let token = req.headers?.authorization.split(" ")[1];
       //   if (type.toLowerCase() == "refresh") token = req.cookies?.refresh_token;
+      const authHeader = req.headers?.authorization;
+      const bearerToken = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7).trim()
+        : authHeader?.trim();
+
       const token =
         type.trim().toLowerCase() === "refresh"
-          ? req.cookies?.refreshToken
-          : req.headers?.authorization?.split(" ")[1];
+          ? req.cookies?.refreshToken ||
+            req.headers?.["x-refresh-token"] ||
+            req.body?.refreshToken ||
+            bearerToken
+          : bearerToken;
       if (optionalAuth && !token) {
         req.tokenData = null;
         return next();
@@ -52,8 +60,9 @@ export const authMiddleware = ({
           return res.status(422).json({ message: "Age is required. Please set your age before continuing." });
         }
       }
+      req.token = token;
       req.tokenData = tokenData;
-      req.user = user
+      req.user = user;
       next();
     } catch (err) {
       if (optionalAuth) {

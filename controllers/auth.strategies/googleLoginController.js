@@ -62,13 +62,14 @@ export const googleCallbackHandler = async (req, res) => {
     });
   }
   console.log(user);
-  const result = await sendTokens(res, user);
+  const result = await sendTokens(res, user, req);
   if (!result) {
     return res.status(403).json({ message: "login failed.", sucess: false });
   }
   const baseRedirect = req.session.redirect_url || "http://localhost:5173/auth/callback";
+  const separator = baseRedirect.includes("?") ? "&" : "?";
   const redirectUrl = result.accessToken
-    ? `${baseRedirect}${baseRedirect.includes("?") ? "&" : "?"}token=${result.accessToken}`
+    ? `${baseRedirect}${separator}token=${encodeURIComponent(result.accessToken)}&refreshToken=${encodeURIComponent(result.refreshToken)}`
     : baseRedirect;
   res.redirect(redirectUrl);
 };

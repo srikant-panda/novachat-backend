@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import Session from "../models/auth.model.js";
-import { config } from "../config/config.js"
+import { config } from "../config/config.js";
 
 export const createToken = (id, email, exp) => {
   try {
@@ -15,14 +16,24 @@ export const createToken = (id, email, exp) => {
   }
 };
 
-export const cookieOptions = {
-  httpOnly: true,
-  sameSite: config.PRODUCTION ? "none" : "lax",
-  secure: config.PRODUCTION,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+export const getCookieOptions = (req) => {
+  const isHttps = req
+    ? req.secure || req.headers?.["x-forwarded-proto"] === "https"
+    : false;
+  const isSecure = config.PRODUCTION || isHttps;
+
+  return {
+    httpOnly: true,
+    sameSite: isSecure ? "lax" : "none",
+    secure: isSecure,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  };
 };
 
-export const sendTokens = async (res, user) => {
+export const cookieOptions = getCookieOptions();
+
+export const sendTokens = async (res, user, req) => {
   const { token: accessToken, JTI: accessTokenJti } = createToken(
     user._id,
     user.email,
@@ -39,9 +50,11 @@ export const sendTokens = async (res, user) => {
     owner: user._id,
   });
   if (isStored) {
-    res.set("Authorization", accessToken);
-    res.cookie("refreshToken", refreshToken, cookieOptions);
+    const options = getCookieOptions(req);
+    res.set("Authorization", `Bearer ${accessToken}`);
+    res.cookie("refreshToken", refreshToken, options);
     return { success: true, accessToken, refreshToken };
   }
   return false;
 };
+

@@ -24,5 +24,7 @@ export const config = {
   // Treat either an explicit production flag or the hosting platform's
   // standard NODE_ENV value as production. This is used by cookie settings.
   PRODUCTION:
-    process.env.PRODUCTION === "true" || process.env.NODE_ENV === "production",
+    (process.env.PRODUCTION === "true" || process.env.NODE_ENV === "production") &&
+    process.env.LOCAL_TEST !== "true",
 };
+
