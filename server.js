@@ -59,7 +59,7 @@ app.use(
       // The OAuth flow only touches the session via top-level redirects,
       // so "lax" works in all browsers (SameSite=None gets blocked by
       // third-party-cookie tracking protection).
-      sameSite: "lax",
+      sameSite: config.PRODUCTION?"none":"lax",
       maxAge: 1000 * 60 * 60, // 1 hour
     },
   })
