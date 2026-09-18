@@ -18,11 +18,7 @@ export const authMiddleware = ({
 
       const token =
         type.trim().toLowerCase() === "refresh"
-          ? req.cookies?.refreshToken ||
-            req.headers?.["x-refresh-token"] ||
-            req.body?.refreshToken ||
-            bearerToken
-          : bearerToken;
+          ? req.cookies?.refreshToken: bearerToken;
       if (optionalAuth && !token) {
         req.tokenData = null;
         return next();

@@ -55,8 +55,9 @@ export const signupController = async (req, res) => {
         owner: userCreated._id,
       });
       res.set("Authorization", `Bearer ${accessToken}`);
+      // res.set("x-refresh-token", refreshToken);
       res.cookie("refreshToken", refreshToken, getCookieOptions(req));
-      res.status(201).json({ message: "User created.", success: true });
+      res.status(201).json({ message: "User created.", success: true, accessToken, refreshToken });
     }
   } catch (err) {
     console.log(err);
@@ -108,7 +109,7 @@ export const loginController = async (req, res) => {
       });
       res.set("Authorization", `Bearer ${accessToken}`);
       res.cookie("refreshToken", refreshToken, getCookieOptions(req));
-      res.json({ message: "User logged in.", success: true });
+      res.json({ message: "User logged in.", success: true, accessToken, refreshToken });
     }
   } catch (err) {
     console.log(err);
@@ -168,7 +169,7 @@ export const refreshController = async (req, res) => {
 
     // res.cookie("refreshToken",newRefreshToken,cookieOptions);
     res.header("Authorization", `Bearer ${newaccessToken}`);
-    res.json({ message: "Token refreshed.", success: true });
+    res.json({ message: "Token refreshed.", success: true, accessToken: newaccessToken });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error." });
