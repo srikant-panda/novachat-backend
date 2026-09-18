@@ -26,6 +26,7 @@ export const googeleLoginHandler = async (req, res) => {
   req.session.redirect_url = q.redirect_url;
   const state = crypto.randomBytes(32).toString("hex");
   req.session.state = state;
+  console.log(req.session.state);
   const scpopes = ["openid", "profile", "email"];
   const authorizeURL = oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -43,6 +44,7 @@ export const googleCallbackHandler = async (req, res) => {
     console.log("Error:" + q.error);
     return res.json({ messgae: "login failed." });
   }
+  console.log(req.session.state);
   if (q.state !== req.session.state) {
     console.log("State mismatch. Possible CSRF attack");
     return res.json({ message: "State mismatch. Possible CSRF attack" });

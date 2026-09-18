@@ -25,6 +25,7 @@ if (!LOCAL_TEST) {
     .filter(Boolean);
 }
 
+app.use(morgan("dev"));
 app.use(
   cors({
     origin(origin, callback) {
@@ -38,12 +39,14 @@ app.use(
     exposedHeaders: ["Authorization"],
   }),
 );
-
-
-app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
+
+// Behind a reverse proxy (Nginx/Render/Railway/etc.) the request arrives as
+// plain HTTP internally; without this, req.secure is false and secure
+// cookies (session + refreshToken) are never set.
+app.set("trust proxy", 1);
 
 app.use(
   session({
@@ -52,8 +55,11 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.PRODUCTION === "true",
-      sameSite: process.env.PRODUCTION === "true"?"lax":"none",
+      secure: config.PRODUCTION,
+      // The OAuth flow only touches the session via top-level redirects,
+      // so "lax" works in all browsers (SameSite=None gets blocked by
+      // third-party-cookie tracking protection).
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60, // 1 hour
     },
   })

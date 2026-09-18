@@ -3,7 +3,7 @@ import Session from "../models/auth.model.js";
 import bcrypt from "bcrypt";
 import { config } from "../config/config.js";
 import { signupSchema, signinSchema } from "../validators/user.schema.js";
-import { createToken, cookieOptions } from "../utils/jwtAndCookie.utils.js";
+import { createToken, getCookieOptions } from "../utils/jwtAndCookie.utils.js";
 
 export const signupController = async (req, res) => {
   try {
@@ -55,7 +55,7 @@ export const signupController = async (req, res) => {
         owner: userCreated._id,
       });
       res.set("Authorization", `Bearer ${accessToken}`);
-      res.cookie("refreshToken", refreshToken, cookieOptions);
+      res.cookie("refreshToken", refreshToken, getCookieOptions(req));
       res.status(201).json({ message: "User created.", success: true });
     }
   } catch (err) {
@@ -107,7 +107,7 @@ export const loginController = async (req, res) => {
         owner: user._id,
       });
       res.set("Authorization", `Bearer ${accessToken}`);
-      res.cookie("refreshToken", refreshToken, cookieOptions);
+      res.cookie("refreshToken", refreshToken, getCookieOptions(req));
       res.json({ message: "User logged in.", success: true });
     }
   } catch (err) {
@@ -132,7 +132,7 @@ export const logoutCotroller = async (req, res) => {
     if (isUpdated) {
       // Clearing a cookie must use the same attributes as the cookie that was
       // set, otherwise browsers can retain the production cookie.
-      res.clearCookie("refreshToken", cookieOptions);
+      res.clearCookie("refreshToken", getCookieOptions(req));
       res.json({ message: "User logged Out.", success: true });
     }
   } catch (err) {
