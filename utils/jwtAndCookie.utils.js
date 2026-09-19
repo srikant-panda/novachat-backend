@@ -30,7 +30,7 @@ export const getCookieOptions = (req) => {
     // Frontend (vercel.app) and backend are on different sites, so the
     // refreshToken cookie must be cross-site capable: SameSite=None,
     // which browsers only accept together with Secure.
-    sameSite: isSecure ? "none" : "lax",
+    sameSite: isSecure ? "strict" : "none",
     secure: isSecure,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",

@@ -14,8 +14,13 @@ import cors from "cors";
 const app = express();
 const LOCAL_TEST = process.env.LOCAL_TEST === "true" || false;
 const devOriginPattern =
-  /^http:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):5173$/;
-let FRONTEND_URLS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+  /^http:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):(5173|8081)$/;
+let FRONTEND_URLS = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:8081",
+  "http://127.0.0.1:8081",
+];
 if (!LOCAL_TEST) {
   if (!process.env.VITE_FRONTEND_URL)
     throw new Error("Frontend URL is not  defined in env.");
@@ -59,7 +64,7 @@ app.use(
       // The OAuth flow only touches the session via top-level redirects,
       // so "lax" works in all browsers (SameSite=None gets blocked by
       // third-party-cookie tracking protection).
-      sameSite: config.PRODUCTION?"none":"lax",
+      sameSite: config.PRODUCTION?"strict":"none",
       maxAge: 1000 * 60 * 60, // 1 hour
     },
   })
@@ -71,7 +76,7 @@ app.get("/", async (req, res) => {
   res.json({ message: "Chathgpt backend is running...", status: "running" });
 });
 
-app.get("/health", async (req, res) => {
+app.get(["/health", "/api/health"], async (req, res) => {
   res.json({
     message: "running",
   });
