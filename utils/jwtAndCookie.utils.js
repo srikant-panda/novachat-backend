@@ -17,9 +17,6 @@ export const createToken = (id, email, exp) => {
 };
 
 export const getCookieOptions = (req) => {
-  // On Vercel the app sits behind a TLS proxy; req.secure is true because
-  // server.js sets `trust proxy`. The header check is a fallback for any
-  // proxy that doesn't rewrite req.secure.
   const isHttps = req
     ? req.secure || req.headers?.["x-forwarded-proto"] === "https"
     : false;
@@ -27,9 +24,7 @@ export const getCookieOptions = (req) => {
 
   return {
     httpOnly: true,
-    // Frontend (vercel.app) and backend are on different sites. Lax allows
-    // the cookie in top-level navigations while keeping CSRF protections.
-    sameSite: isSecure ? "lax" : "none",
+    sameSite: isSecure ? "none" : "lax",
     secure: isSecure,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
@@ -62,4 +57,3 @@ export const sendTokens = async (res, user, req) => {
   }
   return false;
 };
-
