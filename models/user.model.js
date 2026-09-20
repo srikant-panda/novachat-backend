@@ -29,11 +29,7 @@ const userSchema = new mongoose.Schema(
       name: {
         type: String,
         enum: ["google", "github", "email"],
-      },
-      clientID: {
-        type: String,
-        default: null,
-      },
+      }
     },
 
     usage: {

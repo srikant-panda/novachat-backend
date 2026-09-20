@@ -37,6 +37,9 @@ export const signupController = async (req, res) => {
       email,
       age,
       password: hashPassword,
+      method:{
+        name:"email"
+      }
     });
     if (userCreated) {
       const { token: accessToken, JTI: accessTokenJTI } = createToken(
